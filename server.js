@@ -11,7 +11,7 @@ const withKey = "/with/key/";
 // TODO make env
 const delayMinutes = process.env.DELAY_MINUTES
 const delaySecs = 8
-const delayMs = delaySecs * 1000
+const delayMs = delayMinutes * 60 * 1000
 
 // Get the Id from IFTTT Maker URL
 // if(!process.env.IFTTT_MAKER_URL)
