@@ -25,7 +25,8 @@ app.use(express.static('views'));
 app.post("/", function (request, response) {
   console.log("Request received from IFTTT");
   console.log("Triggering multiple IFTTT services");
-  console.log(request)
+  console.log(request.body)
+  console.log(process.env.WEBHOOKS)
   // for(var i=0; i<10; i++){
   //   checkForTrigger(i);
   // }
