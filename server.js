@@ -1,4 +1,4 @@
-import moment from "moment";
+require("moment")
 
 // init project
 var express = require('express');
