@@ -1,5 +1,4 @@
-// server.js
-// where your node app starts
+import moment from "moment";
 
 // init project
 var express = require('express');
