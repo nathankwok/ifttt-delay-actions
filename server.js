@@ -1,4 +1,4 @@
-require("moment")
+var moment = require("moment")
 
 // init project
 var express = require('express');
