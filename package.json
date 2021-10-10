@@ -9,7 +9,8 @@
   "dependencies": {
     "express": "^4.14.0",
     "request": "*",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33"
   },
   "engines": {
     "node": "8.x"
