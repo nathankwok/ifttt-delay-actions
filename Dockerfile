@@ -1,7 +1,10 @@
 FROM node:slim
 
-ENV WEBHOOKS={\"webhooks_id\":\"4XhGCxgB0_BsyfT7hZEPk\"}
-ENV DELAY_MINUTES=20
+ARG webhooks={\"webhooks_id\":\"4XhGCxgB0_BsyfT7hZEPk\"}
+ENV WEBHOOKS=$webhooks
+
+ARG delay_minutes=20
+ENV DELAY_MINUTES=$delay_minutes
 
 # Create app directory
 WORKDIR /usr/src/app
