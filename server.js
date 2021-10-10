@@ -36,7 +36,12 @@ app.post("/", function (request, response) {
   var action = request.body.action;
   console.log("From JSON, action is " + action);
   
-  setTimeout(() => { makeRequest(action) }, delayMs);
+  let executeDate = moment().add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
+  console.log(`Executing ${action} in the future at ${executeDate}`);
+  
+  setTimeout(() => {
+    makeRequest(action)
+  }, delayMs);
   // makeRequest(action);
   
   // for(var i = 0; i < 4; i++){
