@@ -1,5 +1,5 @@
 {
-  "name": "ifttt-delay-actiosn",
+  "name": "ifttt-delay-actions",
   "version": "0.0.1",
   "description": "Delay action after trigger",
   "main": "server.js",
