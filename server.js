@@ -20,20 +20,20 @@ app.post("/", function (request, response) {
   console.log(request.body);
   
   var action = request.body.action;
-  console.log("From JSON, action is " + action);
+  console.log(`From JSON, action is ${action}`);
   
   let delayMinutes;
   try {
-    delayMinutes = parseInt(request.body.delayMinutes)
+    delayMinutes = parseFloat(request.body.delayMinutes)
   } catch {
     delayMinutes = defaultDelayMinutes
   }
-  console.log("From JSON, delayMinutes is " + delayMinutes)
+  console.log(`From JSON, delayMinutes is ${delayMinutes}`)
   let delayMs = delayMinutes * 60 * 1000
   
   
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
-  console.log(`Executing ${action} in the future at ${executeDate}`);
+  console.log(`Executing ${action} in the future at: ${executeDate}`);
   
   setTimeout(() => {
     makeRequest(action)
@@ -46,13 +46,13 @@ app.post("/", function (request, response) {
   //     break;
   // }
   
-  console.log("Done triggering.");
+  console.log("Trigger set");
   response.end();  
 });
 
 // listen for requests
 var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
+  console.log(`Your app is listening on port ${listener.address().port}`);
 });
 
 // TODO Change to switch
@@ -95,12 +95,12 @@ var listener = app.listen(process.env.PORT, function () {
 // }
 
 function makeRequest(action) {
-  console.log("Making request with action " + action)
+  console.log(`Making request with action ${action}`)
   request(baseURL + action + withKey + iftttId, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       console.log(body); // Show the response from IFTTT
     } else {
-      console.log(baseURL + action + withKey + iftttId + ": "+error); // Show the error
+      console.log(baseURL + action + withKey + iftttId + ": " + error); // Show the error
     }
   });
 }
