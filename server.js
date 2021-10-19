@@ -24,10 +24,11 @@ app.post("/", function (request, response) {
   
   let delayMinutes;
   try {
-    delayMinutes = request.body.delayMinutes
+    delayMinutes = parseInt(request.body.delayMinutes)
   } catch {
     delayMinutes = defaultDelayMinutes
   }
+  console.log("From JSON, delayMinutes is " + delayMinutes)
   let delayMs = delayMinutes * 60 * 1000
   
   
