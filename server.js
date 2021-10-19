@@ -7,33 +7,29 @@ var app = express();
 const baseURL = "https://maker.ifttt.com/trigger/";
 const withKey = "/with/key/";
 
-// TODO make env
-const delayMinutes = process.env.DELAY_MINUTES
-const delaySecs = 8
-const delayMs = delayMinutes * 60 * 1000
+const defaultDelayMinutes = process.env.DEFAULT_DELAY_MINUTES
 
 // Get the Id from IFTTT Maker URL
-// if(!process.env.IFTTT_MAKER_URL)
-//   console.log("You need to set your IFTTT Maker URL - copy the URL from https://ifttt.com/services/maker/settings into the .env file against 'IFTTT_MAKER_URL'");
-// else
-// TODO Get id from ENV
-// iftttId = process.env.IFTTT_MAKER_URL.split('https://maker.ifttt.com/use/')[1];
-var webhooksJson = JSON.parse(process.env.WEBHOOKS);
-const iftttId = JSON.parse(process.env.WEBHOOKS).webhooks_id;
+const iftttId = process.env.IFTTT_MAKER_ID;
 
-// Show the homepage
-// http://expressjs.com/en/starter/static-files.html
-// app.use(express.static('views'));
 app.use(express.json());
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
   console.log("Request received from IFTTT");
-  console.log("Triggering multiple IFTTT services");
   console.log(request.body);
   
   var action = request.body.action;
   console.log("From JSON, action is " + action);
+  
+  let delayMinutes;
+  try {
+    delayMinutes = request.body.delayMinutes
+  } catch {
+    delayMinutes = defaultDelayMinutes
+  }
+  let delayMs = delayMinutes * 60 * 1000
+  
   
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
   console.log(`Executing ${action} in the future at ${executeDate}`);
@@ -41,12 +37,7 @@ app.post("/", function (request, response) {
   setTimeout(() => {
     makeRequest(action)
   }, delayMs);
-  // makeRequest(action);
   
-  // for(var i = 0; i < 4; i++){
-  //   checkForTrigger(i);
-  // }
-  //
   // switch (action) {
   //   case process.env.IFTTT_EVENT_1:
   //     break;
