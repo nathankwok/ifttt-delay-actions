@@ -19,41 +19,41 @@ const WITHKEY = "/with/key/";
 const DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES
 
 var actions_requests = {}
+var count = 0
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
+  count += 1
+  
   console.log("Request received from IFTTT");
   console.log(request.body);
   
-  var action = request.body.action;
+  // Get action
+  let action = request.body.action;
   console.log(`From JSON, action is ${action}`);
   
+  // Calculate delay in ms
   let delayMinutes;
   try {
     delayMinutes = parseFloat(request.body.delayMinutes)
   } catch {
     delayMinutes = DEFAULT_DELAY_MINS
   }
-  console.log(`From JSON, delayMinutes is ${delayMinutes}`)
   let delayMs = delayMinutes * 60 * 1000
+  console.log(`From JSON, delayMinutes is ${delayMinutes}`)
+  
   
   // Handle old request, if exists
   let old_request = actions_requests[action]
-  console.log('this is actions_request:')
-  console.log(actions_requests)
-  console.log('end actions_requests \n')
-  
-  console.log('this is old_request:')
+  console.log(`this is old_request for count ${count}:`)
   console.log(old_request)
-  console.log('end old_request \n')
-  
-  console.log('this is typeof(old_request):')
-  console.log(typeof(old_request))
-  console.log('end typeof(old_request) \n')
+  console.log(`end old_request for count ${count} \n`)
   
   if (old_request != null) {
+    console.log("destroying old_request")
     // Handle old request
     old_request.destroy()
+    old_request.shouldKeepAlive = false
     
     // Put this request in its place
     actions_requests[action] = request
@@ -76,17 +76,17 @@ app.post("/", function (request, response) {
     makeRequest(action)
   }, delayMs);
   
-  console.log("Trigger set");
+  console.log(`Trigger set for count ${count}`);
   response.end();
 });
 
 
 
 function makeRequest(action) {
-  console.log(`Making request with action ${action}`)
+  console.log(`Making request with action ${action} for count ${count}`)
   request(BASEURL + action + WITHKEY + IFTTT_ID, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      console.log(body); // Show the response from IFTTT
+      console.log(`${body} with count ${count}`); // Show the response from IFTTT
     } else {
       console.log(BASEURL + action + WITHKEY + "MY_KEY" + ": " + error); // Show the error
     }
