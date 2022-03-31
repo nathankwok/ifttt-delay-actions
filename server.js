@@ -74,7 +74,7 @@ app.post("/", function (request, response) {
   
   // Set timeout and then execute after timeout
   setTimeout(() => {
-    makeRequest(action)
+    makeRequest(action, this_event_count)
   }, delayMs);
   
   console.log(`Trigger set for count ${this_event_count}`);
@@ -83,7 +83,7 @@ app.post("/", function (request, response) {
 
 
 
-function makeRequest(action) {
+function makeRequest(action, this_event_count) {
   console.log(`Making request with action ${action} for count ${this_event_count}`)
   request(BASEURL + action + WITHKEY + IFTTT_ID, function (error, response, body) {
     if (!error && response.statusCode === 200) {
