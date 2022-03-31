@@ -46,15 +46,16 @@ app.post("/", function (request, response) {
   
   // Handle old request, if exists
   let old_request = actions_requests[action]
-  console.log(`this is old_request for count ${this_event_count}:`)
-  console.log(old_request)
-  console.log(`end old_request for count ${this_event_count} \n`)
+  // console.log(`this is old_request for count ${this_event_count}:`)
+  // console.log(old_request)
+  // console.log(`end old_request for count ${this_event_count} \n`)
   
   if (old_request != null) {
     console.log("destroying old_request")
     // Handle old request
-    old_request.destroy()
-    old_request.shouldKeepAlive = false
+    old_request.abort()
+    // old_request.destroy()
+    // old_request.shouldKeepAlive = false
     
     // Put this request in its place
     actions_requests[action] = request
