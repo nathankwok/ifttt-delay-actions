@@ -23,6 +23,7 @@ var count = 0
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
+  let this_event_count = count
   count += 1
   
   console.log("Request received from IFTTT");
@@ -45,9 +46,9 @@ app.post("/", function (request, response) {
   
   // Handle old request, if exists
   let old_request = actions_requests[action]
-  console.log(`this is old_request for count ${count}:`)
+  console.log(`this is old_request for count ${this_event_count}:`)
   console.log(old_request)
-  console.log(`end old_request for count ${count} \n`)
+  console.log(`end old_request for count ${this_event_count} \n`)
   
   if (old_request != null) {
     console.log("destroying old_request")
@@ -76,17 +77,17 @@ app.post("/", function (request, response) {
     makeRequest(action)
   }, delayMs);
   
-  console.log(`Trigger set for count ${count}`);
+  console.log(`Trigger set for count ${this_event_count}`);
   response.end();
 });
 
 
 
 function makeRequest(action) {
-  console.log(`Making request with action ${action} for count ${count}`)
+  console.log(`Making request with action ${action} for count ${this_event_count}`)
   request(BASEURL + action + WITHKEY + IFTTT_ID, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      console.log(`${body} with count ${count}`); // Show the response from IFTTT
+      console.log(`${body} with count ${this_event_count}`); // Show the response from IFTTT
     } else {
       console.log(BASEURL + action + WITHKEY + "MY_KEY" + ": " + error); // Show the error
     }
