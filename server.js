@@ -45,7 +45,7 @@ app.post("/", function (request, response) {
   console.log(`From JSON, delayMinutes is ${delayMinutes}`)
   
   // Store the most up-to-date event id for that action
-  actionsEventIds[action] = eventId
+  actionsEventIds[action] = thisEventId
   
   // Log when it will execute
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
