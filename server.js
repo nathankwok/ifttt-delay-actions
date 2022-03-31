@@ -39,9 +39,17 @@ app.post("/", function (request, response) {
   
   // Handle old request, if exists
   let old_request = actions_requests[action]
+  console.log('this is actions_request:')
   console.log(actions_requests)
+  console.log('end actions_requests \n')
+  
+  console.log('this is old_request:')
   console.log(old_request)
+  console.log('end old_request \n')
+  
+  console.log('this is typeof(old_request):')
   console.log(typeof(old_request))
+  console.log('end typeof(old_request) \n')
   
   if (old_request != null) {
     // Handle old request
