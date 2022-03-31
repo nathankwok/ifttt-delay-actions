@@ -4,15 +4,21 @@ var moment = require("moment-timezone")
 var express = require('express');
 var request = require('request');
 var app = express();
-const baseURL = "https://maker.ifttt.com/trigger/";
-const withKey = "/with/key/";
-
-const defaultDelayMinutes = process.env.DEFAULT_DELAY_MINUTES
-
-// Get the Id from IFTTT Maker URL
-const iftttId = process.env.IFTTT_MAKER_ID;
 
 app.use(express.json());
+
+// listen for requests
+var listener = app.listen(process.env.PORT, function () {
+  console.log(`Your app is listening on port ${listener.address().port}`);
+});
+
+// Get the Id from IFTTT Maker URL
+const IFTTT_ID = process.env.IFTTT_MAKER_ID;
+const BASEURL = "https://maker.ifttt.com/trigger/";
+const WITHKEY = "/with/key/";
+const DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES
+
+var actions_requests = {}
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
@@ -26,81 +32,55 @@ app.post("/", function (request, response) {
   try {
     delayMinutes = parseFloat(request.body.delayMinutes)
   } catch {
-    delayMinutes = defaultDelayMinutes
+    delayMinutes = DEFAULT_DELAY_MINS
   }
   console.log(`From JSON, delayMinutes is ${delayMinutes}`)
   let delayMs = delayMinutes * 60 * 1000
   
+  // Handle old request, if exists
+  let old_request = actions_requests[action]
+  console.log(actions_requests)
+  console.log(old_request)
+  console.log(typeof(old_request))
   
+  if (old_request != null) {
+    // Handle old request
+    old_request.destroy()
+    
+    // Put this request in its place
+    actions_requests[action] = request
+  } else {
+    // Have not seen this action before
+    actions_requests[action] = request
+  }
+  
+  // TODO handle multiple actions using hashmap
+  
+  // TODO seperate timer for each action
+  // TODO reset timer if action is seen before trigger time, https://stackoverflow.com/questions/315078/how-do-you-handle-multiple-instances-of-settimeout
+  
+  // Log when it will execute
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
   console.log(`Executing ${action} in the future at: ${executeDate}`);
   
+  // Set timeout and then execute after timeout
   setTimeout(() => {
     makeRequest(action)
   }, delayMs);
   
-  // switch (action) {
-  //   case process.env.IFTTT_EVENT_1:
-  //     break;
-  //   case process.env.IFTTT_EVENT_2:
-  //     break;
-  // }
-  
   console.log("Trigger set");
-  response.end();  
+  response.end();
 });
 
-// listen for requests
-var listener = app.listen(process.env.PORT, function () {
-  console.log(`Your app is listening on port ${listener.address().port}`);
-});
 
-// TODO Change to switch
-// Loops through each event and where it finds a value for it in .env it will make a request to IFTTT using it
-// function checkForTrigger(trigger){
-//   var triggerEvent;
-//
-//   // switch (trigger) {
-//   //   case process.env.IFTTT_EVENT_1:
-//   //     break;
-//   //   case process.env.IFTTT_EVENT_2:
-//   //     break;
-//   // }
-//
-//   if(trigger===0)
-//     triggerEvent=process.env.IFTTT_EVENT_1;
-//   if(trigger===1)
-//     triggerEvent=process.env.IFTTT_EVENT_2;
-//   if(trigger===2)
-//     triggerEvent=process.env.IFTTT_EVENT_3;
-//   if(trigger===3)
-//     triggerEvent=process.env.IFTTT_EVENT_4;
-//   if(trigger===4)
-//     triggerEvent=process.env.IFTTT_EVENT_5;
-//   if(trigger===5)
-//     triggerEvent=process.env.IFTTT_EVENT_6;
-//   if(trigger===6)
-//     triggerEvent=process.env.IFTTT_EVENT_7;
-//   if(trigger===7)
-//     triggerEvent=process.env.IFTTT_EVENT_8;
-//   if(trigger===8)
-//     triggerEvent=process.env.IFTTT_EVENT_9;
-//   if(trigger===9)
-//     triggerEvent=process.env.IFTTT_EVENT_10;
-//
-//   if(triggerEvent){
-//     // Make a request to baseURL + triggerEvent + withKey + iftttId, which is the complete IFTTT Maker Request URL
-//     makeRequest(triggerEvent)
-//   }
-// }
 
 function makeRequest(action) {
   console.log(`Making request with action ${action}`)
-  request(baseURL + action + withKey + iftttId, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
+  request(BASEURL + action + WITHKEY + IFTTT_ID, function (error, response, body) {
+    if (!error && response.statusCode === 200) {
       console.log(body); // Show the response from IFTTT
     } else {
-      console.log(baseURL + action + withKey + iftttId + ": " + error); // Show the error
+      console.log(BASEURL + action + WITHKEY + "MY_KEY" + ": " + error); // Show the error
     }
   });
 }

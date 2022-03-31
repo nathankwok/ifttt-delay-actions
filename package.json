@@ -10,10 +10,12 @@
     "express": "^4.14.0",
     "request": "*",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.33"
+    "moment-timezone": "^0.5.33",
+    "node-fetch": "^3.2.3",
+    "fastify": "^3.20.2"
   },
   "engines": {
-    "node": "8.x"
+    "node": "16.x"
   },
   "keywords": [
     "node",
