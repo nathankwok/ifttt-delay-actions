@@ -1,9 +1,9 @@
 var moment = require("moment-timezone")
 
 // init project
-var express = require('express');
-var request = require('request');
-var app = express();
+const express = require('express');
+const request = require('request');
+const app = express();
 
 app.use(express.json());
 
@@ -16,16 +16,16 @@ var listener = app.listen(process.env.PORT, function () {
 const IFTTT_ID = process.env.IFTTT_MAKER_ID;
 const BASEURL = "https://maker.ifttt.com/trigger/";
 const WITHKEY = "/with/key/";
-const DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES
+const DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES;
 
-var actionsEventIds = {}
-var eventId = 0
+var actionsEventIds = {};
+var eventId = 0;
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
   // Use eventId to see if action should be run
-  let thisEventId = eventId
-  eventId += 1
+  let thisEventId = eventId;
+  eventId += 1;
   
   console.log("Request received from IFTTT");
   console.log(request.body);
@@ -45,7 +45,7 @@ app.post("/", function (request, response) {
   console.log(`From JSON, delayMinutes is ${delayMinutes}`)
   
   // Store the most up-to-date event id for that action
-  actionsEventIds[action] = thisEventId
+  actionsEventIds[action] = thisEventId;
   
   // Log when it will execute
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
@@ -57,7 +57,29 @@ app.post("/", function (request, response) {
   }, delayMs);
   
   console.log(`Trigger set for eventId ${thisEventId}`);
-  response.end();
+  response.status(200).send('OK');
+});
+
+
+// Healthcheck
+app.get("/", function (request, response) {
+  console.log(`Responding to / GET with OK`);
+  const data = {
+    uptime: process.uptime(),
+    message: 'OK',
+    date: new Date()
+  };
+  response.status(200).send(data);
+});
+
+app.get("/healthcheck", function (request, response) {
+  console.log(`Responding to /healthcheck GET with OK`);
+  const data = {
+    uptime: process.uptime(),
+    message: 'OK',
+    date: new Date()
+  };
+  response.status(200).send(data);
 });
 
 
