@@ -66,6 +66,7 @@ app.get("/", function (request, response) {
   console.log(`Responding to / GET with OK`);
   const data = {
     uptime: process.uptime(),
+    uptime_units: 'seconds',
     message: 'OK',
     date: new Date()
   };
@@ -76,6 +77,7 @@ app.get("/healthcheck", function (request, response) {
   console.log(`Responding to /healthcheck GET with OK`);
   const data = {
     uptime: process.uptime(),
+    uptime_units: 'seconds',
     message: 'OK',
     date: new Date()
   };
