@@ -94,7 +94,8 @@ app.post("/myq-action", async function (request, response) {
     device_serial = LEFT_GARAGE_DOOR_SERIAL
   }
   
-  let success = await myQ.execute(myQ.getDevice(device_serial), "open")
+  let device = await myQ.getDevice(device_serial)
+  let success = await myQ.execute(device, "open")
   
   if (success) {
     response.status(200).send('OK');
