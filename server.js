@@ -3,23 +3,35 @@ var moment = require("moment-timezone")
 // init project
 const express = require('express');
 const request = require('request');
+const myQApi = require("@hjdhjd/myq");
 const app = express();
 
 app.use(express.json());
 
-// listen for requests
+// Listen for requests
 var listener = app.listen(process.env.PORT, function () {
   console.log(`Your app is listening on port ${listener.address().port}`);
 });
 
-// Get the Id from IFTTT Maker URL
 const IFTTT_ID = process.env.IFTTT_MAKER_ID;
 const BASEURL = "https://maker.ifttt.com/trigger/";
 const WITHKEY = "/with/key/";
-const DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES;
+let DEFAULT_DELAY_MINS = process.env.DEFAULT_DELAY_MINUTES;
+if ( DEFAULT_DELAY_MINS == null ) {
+  DEFAULT_DELAY_MINS = 20
+}
 
-var actionsEventIds = {};
-var eventId = 0;
+const MYQ_EMAIL = process.env.MYQ_EMAIL;
+const MYQ_PW = process.env.MYQ_PW;
+const MYQ_CODE = process.env.MYQ_CODE;
+const RIGHT_GARAGE_DOOR_SERIAL = process.env.RIGHT_GARAGE_DOOR_SERIAL;
+const LEFT_GARAGE_DOOR_SERIAL = process.env.LEFT_GARAGE_DOOR_SERIAL;
+
+
+// Keep track of the latest event for each action
+let actionsEventIds = {};
+let eventId = 0;
+
 
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
@@ -61,6 +73,37 @@ app.post("/", function (request, response) {
 });
 
 
+// MyQ Actions
+app.post("/myq-action", async function (request, response) {
+  let code = String(request.headers.code)
+  let door = String(request.body.door).toUpperCase()
+  
+  if (code !== MYQ_CODE) {
+    console.error("Responding with Unauthorized")
+    return response.status(401).send("Unauthorized");
+  }
+  
+  // Login and get devices
+  let myQ = new myQApi.myQApi(MYQ_EMAIL, MYQ_PW)
+  await myQ.refreshDevices()
+  
+  let device_serial;
+  if (door === "RIGHT") {
+    device_serial = RIGHT_GARAGE_DOOR_SERIAL
+  } else if (door === "LEFT") {
+    device_serial = LEFT_GARAGE_DOOR_SERIAL
+  }
+  
+  let success = await myQ.execute(myQ.getDevice(device_serial), "open")
+  
+  if (success) {
+    response.status(200).send('OK');
+  } else {
+    response.status(500).send("MyQ failed to execute command")
+  }
+});
+
+
 // Healthcheck
 app.get("/", function (request, response) {
   console.log(`Responding to / GET with OK`);
@@ -72,6 +115,7 @@ app.get("/", function (request, response) {
   };
   response.status(200).send(data);
 });
+
 
 app.get("/healthcheck", function (request, response) {
   console.log(`Responding to /healthcheck GET with OK`);

@@ -12,7 +12,8 @@
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
     "node-fetch": "^3.2.3",
-    "fastify": "^3.20.2"
+    "fastify": "^3.20.2",
+    "@hjdhjd/myq": "^6.0.7"
   },
   "engines": {
     "node": "v17.8.0",
