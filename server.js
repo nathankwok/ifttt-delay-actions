@@ -75,7 +75,7 @@ app.post("/", function (request, response) {
 
 // MyQ Actions
 app.post("/myq-action", async function (request, response) {
-  let code = String(request.headers.code)
+  let code = String(request.body.code)
   let door = String(request.body.door).toUpperCase()
   
   if (code !== MYQ_CODE) {
