@@ -1,6 +1,6 @@
 var moment = require("moment-timezone")
 
-// init project
+// Init project
 const express = require('express');
 const request = require('request');
 const myQApi = require("@hjdhjd/myq");
@@ -33,43 +33,10 @@ let actionsEventIds = {};
 let eventId = 0;
 
 
+
 // Handle requests from IFTTT
 app.post("/", function (request, response) {
-  // Use eventId to see if action should be run
-  let thisEventId = eventId;
-  eventId += 1;
-  
-  console.log("Request received from IFTTT");
-  console.log(request.body);
-  
-  // Get action
-  let action = request.body.action;
-  console.log(`From JSON, action is ${action}`);
-  
-  // Calculate delay in ms
-  let delayMinutes;
-  try {
-    delayMinutes = parseFloat(request.body.delayMinutes)
-  } catch {
-    delayMinutes = DEFAULT_DELAY_MINS
-  }
-  let delayMs = delayMinutes * 60 * 1000
-  console.log(`From JSON, delayMinutes is ${delayMinutes}`)
-  
-  // Store the most up-to-date event id for that action
-  actionsEventIds[action] = thisEventId;
-  
-  // Log when it will execute
-  let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
-  console.log(`Executing ${action} with eventId ${thisEventId} in the future at: ${executeDate}`);
-  
-  // Set timeout and then execute after timeout
-  setTimeout(() => {
-    makeRequest(action, thisEventId)
-  }, delayMs);
-  
-  console.log(`Trigger set for eventId ${thisEventId}`);
-  response.status(200).send('OK');
+  delay_action(request, response);
 });
 
 
@@ -107,19 +74,19 @@ app.post("/myq-action", async function (request, response) {
 
 // Healthcheck
 app.get("/", function (request, response) {
-  console.log(`Responding to / GET with OK`);
-  const data = {
-    uptime: process.uptime(),
-    uptime_units: 'seconds',
-    message: 'OK',
-    date: new Date()
-  };
-  response.status(200).send(data);
+  healthcheck(request, response);
 });
 
 
 app.get("/healthcheck", function (request, response) {
-  console.log(`Responding to /healthcheck GET with OK`);
+  healthcheck(request, response);
+});
+
+
+
+// Helper functions
+function healthcheck(request, response) {
+  console.log(`Responding to healthcheck request at ${request.path} GET with OK`);
   const data = {
     uptime: process.uptime(),
     uptime_units: 'seconds',
@@ -127,8 +94,7 @@ app.get("/healthcheck", function (request, response) {
     date: new Date()
   };
   response.status(200).send(data);
-});
-
+}
 
 
 function makeRequest(action, thisEventId) {
@@ -147,3 +113,43 @@ function makeRequest(action, thisEventId) {
   }
   
 }
+
+function delay_action(request, response) {
+  // Use eventId to see if action should be run
+  let thisEventId = eventId;
+  eventId += 1;
+  
+  console.log("Request received from IFTTT");
+  console.log(request.body);
+  
+  // Get action
+  let action = request.body.action;
+  console.log(`From JSON, action is ${action}`);
+  
+  // Calculate delay in ms
+  let delayMinutes;
+  try {
+    delayMinutes = parseFloat(request.body.delayMinutes)
+  } catch {
+    delayMinutes = DEFAULT_DELAY_MINS
+  }
+  let delayMs = delayMinutes * 60 * 1000
+  console.log(`From JSON, delayMinutes is ${delayMinutes}`)
+  
+  // Store the most up-to-date event id for that action
+  actionsEventIds[action] = thisEventId;
+  
+  // Log when it will execute
+  let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
+  console.log(`Executing ${action} with eventId ${thisEventId} in the future at: ${executeDate}`);
+  
+  // Set timeout and then execute after timeout
+  setTimeout(() => {
+    makeRequest(action, thisEventId)
+  }, delayMs);
+  
+  console.log(`Trigger set for eventId ${thisEventId}`);
+  response.status(200).send('OK');
+}
+
+
