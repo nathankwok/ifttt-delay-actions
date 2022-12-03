@@ -35,7 +35,7 @@ let eventId = 0;
 
 
 // Handle requests from IFTTT
-app.post("/", function (request, response) {
+app.post(["/", "/delay_action"], function (request, response) {
   delay_action(request, response);
 });
 
@@ -73,12 +73,7 @@ app.post("/myq-action", async function (request, response) {
 
 
 // Healthcheck
-app.get("/", function (request, response) {
-  healthcheck(request, response);
-});
-
-
-app.get("/healthcheck", function (request, response) {
+app.get(["/", "/healthcheck"], function (request, response) {
   healthcheck(request, response);
 });
 
