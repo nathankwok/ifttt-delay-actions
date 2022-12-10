@@ -36,7 +36,7 @@ let eventId = 0;
 
 // Handle requests from IFTTT
 app.post(["/", "/delay_action"], function (request, response) {
-  delay_action(request, response);
+  delay_action_handle_timeout(request, response);
 });
 
 
@@ -106,10 +106,10 @@ function makeRequest(action, thisEventId) {
   } else {
     console.log(`Found a more recent event. Was looking for ${thisEventId} and found ${actionsEventIds[action]}`)
   }
-  
 }
 
-function delay_action(request, response) {
+
+function delay_action_handle_timeout(request, response) {
   // Use eventId to see if action should be run
   let thisEventId = eventId;
   eventId += 1;
@@ -136,11 +136,12 @@ function delay_action(request, response) {
   
   // Log when it will execute
   let executeDate = moment().tz('America/Los_Angeles').add(delayMinutes, 'm').format("YYYY-MM-DD h:mm:ss a")
-  console.log(`Executing ${action} with eventId ${thisEventId} in the future at: ${executeDate}`);
+  console.log(`${action} with eventId ${thisEventId} will execute in the future at: ${executeDate}`);
   
   // Set timeout and then execute after timeout
   setTimeout(() => {
     makeRequest(action, thisEventId)
+    console.log(`Executed ${action} with eventId ${thisEventId}`);
   }, delayMs);
   
   console.log(`Trigger set for eventId ${thisEventId}`);
