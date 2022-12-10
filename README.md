@@ -1,9 +1,20 @@
-# Multiple IFTTT Triggers
-IFTTT users have longed for the ability to trigger multiple actions from a single command, making it more like if-this-then-them. So you could for example, press a single button and trigger your lights to go off, your thermostat to turn off, and your security cameras to turn on.
+# ifttt-delay-actions
 
-Well, with this app and IFTTT Webhooks you can make that happen!
+A Node.js service that holds a request for a specified period before making a separate request.
+This is useful for receiving a request from the IFTTT Maker Webhooks service as a result of a "Then" action, which will then trigger another applet with the Maker Webhook "If" trigger.
 
-![](https://cdn.glitch.com/4761356a-9369-4e79-9d1e-a8306e8c00b5%2FifttMany.png)
+## Set Up
+### Environment Variables
+Set values for these env variables to allow the service to function properly.
 
-# Getting Started
-You need to create a Webhook that notifies your Glitch app, which in turn triggers multiple services in IFTTT. For step-by-step instructions, see `SETUP.md`.
+`IFTTT_MAKER_ID`: The IFTTT Maker Webhooks service key, used to make requests to the Webhooks service. This identifies which IFTTT account to direct the request to.
+
+`DEFAULT_DELAY_MINUTES`: Default delay in minutes. Used if `delayMinutes` is not specified in the `POST` request JSON body.
+
+
+## Installation
+The code can be run from source or a Docker container. The [public Docker image](https://hub.docker.com/r/natekwok/ifttt-delay-actions) can be accessed by 
+```
+docker pull natekwok/ifttt-delay-actions
+```
+
