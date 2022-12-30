@@ -1,9 +1,13 @@
 FROM node:slim
 
 ARG default_delay_minutes=20
-ENV DEFAULT_DELAY_MINUTES=$delay_minutes
+ENV DEFAULT_DELAY_MINUTES=$default_delay_minutes
 
-ENV PORT=$PORT
+ARG default_port=8080
+ENV PORT=$default_port
+
+RUN echo "default_port is $default_port"
+RUN echo "PORT is $PORT"
 
 # Create app directory
 WORKDIR /usr/src/app
