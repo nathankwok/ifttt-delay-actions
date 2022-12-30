@@ -6,7 +6,7 @@ ENV DEFAULT_DELAY_MINUTES=$default_delay_minutes
 ARG default_port=8080
 ENV PORT=$default_port
 
-RUN echo "default_port is $default_port"
+RUN echo "DEFAULT_DELAY_MINUTES is $DEFAULT_DELAY_MINUTES"
 RUN echo "PORT is $PORT"
 
 # Create app directory
