@@ -38,7 +38,7 @@ options:
 substitutions:
   _DEPLOY_REGION: us-central1
   _CONTAINER_REGISTRY_HOSTNAME: us.gcr.io
-  _ARTIFACT_REGISTRY_HOSTNAME: us-central1.pkg.dev
+  _ARTIFACT_REGISTRY_HOSTNAME: us-central1-docker.pkg.dev
   _PLATFORM: managed
   _SERVICE_NAME: ifttt-delay-actions
   _LABELS: gcb-trigger-id=c0280ca0-1431-47c1-8106-2a675a2aaf45
