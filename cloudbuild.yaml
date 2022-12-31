@@ -4,16 +4,18 @@ steps:
       - build
       - '--no-cache'
       - '-t'
-      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
       - .
       - '-f'
       - Dockerfile
     id: Build
+
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
     id: Push
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:
       - run
@@ -21,20 +23,22 @@ steps:
       - update
       - $_SERVICE_NAME
       - '--platform=managed'
-      - '--image=$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
+      - '--image=$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
       - >-
         --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
       - '--region=$_DEPLOY_REGION'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud
+
 images:
-  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
+  - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:latest'
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
   _DEPLOY_REGION: us-central1
-  _GCR_HOSTNAME: us.gcr.io
+  _CONTAINER_REGISTRY_HOSTNAME: us.gcr.io
+  _ARTIFACT_REGISTRY_HOSTNAME: us-central1.pkg.dev
   _PLATFORM: managed
   _SERVICE_NAME: ifttt-delay-actions
   _LABELS: gcb-trigger-id=c0280ca0-1431-47c1-8106-2a675a2aaf45
