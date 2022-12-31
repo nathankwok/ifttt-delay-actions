@@ -15,6 +15,7 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:
       - artifacts
+      - docker
       - images
       - delete
       - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
