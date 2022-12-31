@@ -4,7 +4,7 @@ steps:
       - build
       - '--no-cache'
       - '-t'
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
       - .
       - '-f'
       - Dockerfile
@@ -12,8 +12,15 @@ steps:
 
   - name: gcr.io/cloud-builders/docker
     args:
+      - tag
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
+    id: "Retag Latest"
+
+  - name: gcr.io/cloud-builders/docker
+    args:
       - push
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
     id: Push
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
@@ -21,9 +28,9 @@ steps:
       - run
       - services
       - update
-      - $_SERVICE_NAME
+      - $_REPOSITORY_NAME
       - '--platform=managed'
-      - '--image=$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
+      - '--image=$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
       - >-
         --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
       - '--region=$_DEPLOY_REGION'
@@ -32,7 +39,7 @@ steps:
     entrypoint: gcloud
 
 images:
-  - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/$_SERVICE_NAME/container-service:latest'
+  - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
@@ -40,7 +47,8 @@ substitutions:
   _CONTAINER_REGISTRY_HOSTNAME: us.gcr.io
   _ARTIFACT_REGISTRY_HOSTNAME: us-central1-docker.pkg.dev
   _PLATFORM: managed
-  _SERVICE_NAME: ifttt-delay-actions
+  _REPOSITORY_NAME: ifttt-delay-actions
+  _IMAGE_NAME: container-service
   _LABELS: gcb-trigger-id=c0280ca0-1431-47c1-8106-2a675a2aaf45
   _TRIGGER_ID: c0280ca0-1431-47c1-8106-2a675a2aaf45
 tags:
