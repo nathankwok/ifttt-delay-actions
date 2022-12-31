@@ -4,7 +4,7 @@ steps:
       - build
       - '--no-cache'
       - '-t'
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
       - .
       - '-f'
       - Dockerfile
@@ -13,7 +13,7 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
     id: Push
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
@@ -23,7 +23,7 @@ steps:
       - update
       - $_SERVICE_NAME
       - '--platform=managed'
-      - '--image=$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME:latest'
+      - '--image=$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/container-service:latest'
       - >-
         --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
       - '--region=$_DEPLOY_REGION'
@@ -32,7 +32,7 @@ steps:
     entrypoint: gcloud
 
 images:
-  - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME:latest'
+  - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME/$_SERVICE_NAME/container-service:latest'
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
