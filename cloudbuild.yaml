@@ -1,6 +1,34 @@
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
+      - pull
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
+    id: Pull previous latest image
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - tag
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
+    id: Retag latest image
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - artifacts
+      - images
+      - delete
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
+    entrypoint: gcloud
+    id: Delete previous backup image
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
+    id: Push backup image
+
+  - name: gcr.io/cloud-builders/docker
+    args:
       - build
       - '--no-cache'
       - '-t'
@@ -8,20 +36,13 @@ steps:
       - .
       - '-f'
       - Dockerfile
-    id: Build
-
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - tag
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
-    id: "Retag Latest"
+    id: Build latest image
 
   - name: gcr.io/cloud-builders/docker
     args:
       - push
       - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:latest'
-    id: Push
+    id: Push latest image
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:
