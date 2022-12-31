@@ -19,6 +19,7 @@ steps:
       - images
       - delete
       - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
+      - '--yes'
     entrypoint: gcloud
     id: Delete previous backup image
 
