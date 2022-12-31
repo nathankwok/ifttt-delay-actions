@@ -12,16 +12,6 @@ steps:
       - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
     id: Retag latest image
 
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-    args:
-      - artifacts
-      - docker
-      - images
-      - delete
-      - '$_ARTIFACT_REGISTRY_HOSTNAME/$PROJECT_ID/$_REPOSITORY_NAME/$_IMAGE_NAME:backup'
-      - '--yes'
-    entrypoint: gcloud
-    id: Delete previous backup image
 
   - name: gcr.io/cloud-builders/docker
     args:
