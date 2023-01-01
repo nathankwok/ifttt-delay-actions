@@ -11,6 +11,7 @@ env:
   # github.repository = <account>/<repo_name>
   IMAGE_NAME: ${{ github.repository }}
   LATEST_TAG: latest
+  BACKUP_TAG: backup
 
 
 jobs:
@@ -47,16 +48,21 @@ jobs:
 #          password: ${{ secrets.GITHUB_TOKEN }}
 
 
-      # TODO pull previous latest image
+      # Pull previous latest GitHub Container Registry image
+      - name: Pull previous latest GitHub Container Registry image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
 
+      # Tag previous latest GitHub Container Registry image with backup tag
+      - name: Tag previous latest GitHub Container Registry image with backup tag
+        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
+      # Tag Docker Hub image with backup tag
+      - name: Tag Docker Hub image with backup tag
+        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
-      # TODO retag previous latest image to backup
-
-
-
-      # TODO push backup image
-
+      # Push backup images
+      - name: Push backup images
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
       - name: Extract metadata (tags, labels) for Docker
@@ -88,11 +94,3 @@ jobs:
           project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
           service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
           image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
-
-
-      # https://github.com/actions/delete-package-versions#delete-all-except-y-latest-versions-of-a-package
-      - name: Delete previous Github packages
-        uses: actions/delete-package-versions@v3
-        with:
-          package-name: ${{ env.REPO_NAME }}
-          min-versions-to-keep: 2
