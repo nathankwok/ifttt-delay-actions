@@ -11,7 +11,6 @@ env:
   # github.repository = <account>/<repo_name>
   IMAGE_NAME: ${{ github.repository }}
 
-  NORTHFLANK_PROJECT_ID
 
 jobs:
   push_to_registries:
@@ -87,10 +86,10 @@ jobs:
 #        uses: northflank/deploy-to-northflank@v1
 #        with:
 #          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
-#          project-id: ${{ env.PROJECT_ID }}
-#          service-id: ${{ env.SERVICE_ID }}
+#          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
+#          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
 #          image-path: ${{ steps.meta.outputs.tags }}
-#          credentials-id: ${{ env.CREDENTIALS_ID }}
+#          credentials-id: ${{ secrets.NORTHFLANK_CREDENTIALS_ID }}
 
       - name: Clean up untagged images
         id: Clean up images
