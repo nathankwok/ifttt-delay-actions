@@ -13,8 +13,8 @@ Set values for these env variables to allow the service to function properly.
 
 
 ## Installation
-The code can be run from source or a Docker container. The [public Docker image](https://hub.docker.com/r/natekwok/ifttt-delay-actions) can be accessed by 
+The code can be run from source or a Docker container. The [public Docker image](https://hub.docker.com/r/nathankwok/ifttt-delay-actions) can be accessed by 
 ```
-docker pull natekwok/ifttt-delay-actions
+docker pull nathankwok/ifttt-delay-actions
 ```
 
