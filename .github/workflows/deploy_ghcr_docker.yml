@@ -10,6 +10,7 @@ env:
   REGISTRY: ghcr.io
   # github.repository = <account>/<repo_name>
   IMAGE_NAME: ${{ github.repository }}
+  LATEST_TAG: latest
 
 
 jobs:
@@ -67,7 +68,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # set latest tag for default branch
           tags: |
-            type=raw,value=latest
+            type=raw,value=${{ env.LATEST_TAG }}
             type=raw,value={{branch}}
 
       - name: Build and push Docker images
@@ -79,29 +80,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Echo tags
-        run: echo "${{ steps.meta.outputs.tags }}"
-
-      - name: Echo images
-        run: echo "${{ steps.meta.outputs.images }}"
-
-      - name: Echo labels
-        run: echo "${{ steps.meta.outputs.labels }}"
-
-#      # Deploy the image to an existing Northflank service or job.
-#      - name: Deploy to Northflank
-#        uses: northflank/deploy-to-northflank@v1
-#        with:
-#          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
-#          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
-#          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
-#          image-path: ${{ steps.meta.outputs.tags }}
-#          credentials-id: ${{ secrets.NORTHFLANK_CREDENTIALS_ID }}
-
-      - name: Clean up untagged images
-        id: image_cleanup
-        uses: 'docker://us-docker.pkg.dev/gcr-cleaner/gcr-cleaner/gcr-cleaner-cli'
+      # Deploy the image to an existing Northflank service or job.
+      - name: Deploy to Northflank
+        uses: northflank/deploy-to-northflank@v1
         with:
-          args: >-
-            -repo=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
+          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
+          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
+          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
+          image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
+
+
+
+#      - name: Clean up untagged images
+#        id: image_cleanup
+#        uses: 'docker://us-docker.pkg.dev/gcr-cleaner/gcr-cleaner/gcr-cleaner-cli'
+#        with:
+#          args: >-
+#            -repo=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
 #            -repo=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
