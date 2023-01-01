@@ -56,13 +56,17 @@ jobs:
       - name: Tag previous latest GitHub Container Registry image with backup tag
         run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
+      # Push Docker Hub image
+      - name: Push backup GitHub Container Registry image
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
+
       # Tag Docker Hub image with backup tag
       - name: Tag Docker Hub image with backup tag
         run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
-      # Push backup images
-      - name: Push backup images
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
+      # Push Docker Hub image
+      - name: Push backup Docker Hub image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
       - name: Extract metadata (tags, labels) for Docker
