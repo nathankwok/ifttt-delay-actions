@@ -90,11 +90,9 @@ jobs:
           image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
 
 
-
-#      - name: Clean up untagged images
-#        id: image_cleanup
-#        uses: 'docker://us-docker.pkg.dev/gcr-cleaner/gcr-cleaner/gcr-cleaner-cli'
-#        with:
-#          args: >-
-#            -repo=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
-#            -repo=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      # https://github.com/actions/delete-package-versions#delete-all-except-y-latest-versions-of-a-package
+      - name: Delete previous Github packages
+        uses: actions/delete-package-versions@v3
+        with:
+          package-name: ${{ env.REPO_NAME }}
+          min-versions-to-keep: 2
