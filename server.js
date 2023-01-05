@@ -11,6 +11,7 @@ app.use(express.json());
 // Listen for requests
 var listener = app.listen(process.env.PORT, function () {
   console.log(`Your app is listening on port ${listener.address().port}`);
+  console.log(`The default delay in minutes is ${process.env.DEFAULT_DELAY_MINUTES}`)
 });
 
 const IFTTT_ID = process.env.IFTTT_MAKER_ID;

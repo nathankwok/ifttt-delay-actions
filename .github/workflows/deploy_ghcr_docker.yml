@@ -22,7 +22,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - name: Get Repository Name
+      - name: Parse Repository Name
         id: parse_repo_name
         # REPO_NAME = ifttt-delay-actions
         run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
