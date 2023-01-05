@@ -12,6 +12,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   LATEST_TAG: latest
   BACKUP_TAG: backup
+  TO_REMOVE_TAG: to_remove
 
 
 jobs:
@@ -47,27 +48,45 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
 
-      # Pull previous latest GitHub Container Registry image
+      # Pull previous `latest` GitHub Container Registry image
       - name: Pull previous latest GitHub Container Registry image
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
 
-      # Tag previous latest GitHub Container Registry image with backup tag
+      # Pull previous `backup` GitHub Container Registry image
+      - name: Pull previous backup GitHub Container Registry image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
+
+
+
+      # Tag previous `backup` GitHub Container Registry image with `to_remove` tag
+      - name: Tag previous latest GitHub Container Registry image with backup tag
+        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
+
+      # Tag previous `latest` GitHub Container Registry image with `backup` tag
       - name: Tag previous latest GitHub Container Registry image with backup tag
         run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
-      # Push Docker Hub image
+      # Tag Docker Hub image with `backup` tag using the newly tagged GitHub `backup` image
+      - name: Tag Docker Hub image with backup tag
+        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
+
+
+
+      # Push `to_remove` GitHub image
+      - name: Push to_remove GitHub Container Registry image
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
+
+      # Push `backup` GitHub image
       - name: Push backup GitHub Container Registry image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
-      # Tag Docker Hub image with backup tag
-      - name: Tag Docker Hub image with backup tag
-        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
-
-      # Push Docker Hub image
+      # Push `backup` Docker Hub image
       - name: Push backup Docker Hub image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
+
+      # Get image names with proper tags
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
@@ -80,6 +99,7 @@ jobs:
             type=raw,value=${{ env.LATEST_TAG }}
             type=raw,value={{branch}}
 
+      # Build and tag current image with `latest` tag. Push to GitHub and Docker Hub container registries
       - name: Build and push Docker images
         id: build_push_current_image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -89,7 +109,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # Deploy the image to an existing Northflank service or job.
+      # Deploy the image to an existing Northflank service or job
       - name: Deploy to Northflank
         uses: northflank/deploy-to-northflank@v1
         with:
@@ -97,3 +117,13 @@ jobs:
           project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
           service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
           image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
+
+
+      # Delete the `to_remove` image from GitHub Container Registry
+      - name: Delete old image
+        uses: bots-house/ghcr-delete-image-action@v1.0.0
+        with:
+          owner: ${{ github.actor }}
+          name: ${{ env.REPO_NAME }}
+          token: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+          tag: ${{ env.TO_REMOVE_TAG }}
