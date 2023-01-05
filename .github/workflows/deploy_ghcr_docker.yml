@@ -123,7 +123,7 @@ jobs:
       - name: Delete old image
         uses: bots-house/ghcr-delete-image-action@v1.0.0
         with:
-          owner: ${{ github.actor }}
+          owner: ${{ secrets.DOCKERHUB_USERNAME }}
           name: ${{ env.REPO_NAME }}
           token: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
           tag: ${{ env.TO_REMOVE_TAG }}
