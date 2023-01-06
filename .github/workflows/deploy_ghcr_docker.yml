@@ -80,9 +80,9 @@ jobs:
       - name: Push backup GitHub Container Registry image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
-      # Push `backup` Docker Hub image
-      - name: Push backup Docker Hub image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
+#      # Push `backup` Docker Hub image
+#      - name: Push backup Docker Hub image
+#        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
 
@@ -92,7 +92,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
+#            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # set latest tag for default branch
           tags: |
@@ -143,30 +143,35 @@ jobs:
       - name: check pwd
         run: |
           echo ${PWD}
-          echo $(ls -la)
+          echo $(ls)
+
+#      - name: Delete untagged dangling images
+#        env:
+#          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+#        run: |
+#          echo "Fetching dangling images from GHCR..."
+#          ids_to_delete=$(gh api /user/packages/container/${{ env.REPO_NAME }}/versions | jq -r '.[] | select(.metadata.container.tags==[]) | .id')
+#
+#          echo "Found dangling image ids: \n${ids_to_delete}"
+#
+#          if [ "${ids_to_delete}" = "" ]
+#            then
+#            echo "There are no dangling images to remove for this package"
+#            exit 0
+#          fi
+#
+#          echo -e "\nDeleting dangling images..."
+#          while read -r line; do
+#            id="$line"
+#            ## Workaround for https://github.com/cli/cli/issues/4286 and https://github.com/cli/cli/issues/3937
+#            echo -n | gh api --method DELETE /user/packages/container/${{ env.REPO_NAME }}/versions/${id} --input -
+#            echo Dangling image with ID $id deleted successfully
+#          done <<< $ids_to_delete
+#
+#          echo -e "\nAll the dangling images have been removed successfully"
 
       - name: Delete untagged dangling images
-        env:
-          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: |
-          echo "Fetching dangling images from GHCR..."
-          ids_to_delete=$(gh api /user/packages/container/${{ env.REPO_NAME }}/versions | jq -r '.[] | select(.metadata.container.tags==[]) | .id')
-        
-          echo "Found dangling image ids: \n${ids_to_delete}"
-          
-          if [ "${ids_to_delete}" = "" ]
-            then
-            echo "There are no dangling images to remove for this package"
-            exit 0
-          fi
-          
-          echo -e "\nDeleting dangling images..."
-          while read -r line; do
-            id="$line"
-            ## Workaround for https://github.com/cli/cli/issues/4286 and https://github.com/cli/cli/issues/3937
-            echo -n | gh api --method DELETE /user/packages/container/${{ env.REPO_NAME }}/versions/${id} --input -
-            echo Dangling image with ID $id deleted successfully
-          done <<< $ids_to_delete
-          
-          echo -e "\nAll the dangling images have been removed successfully"
-          
+          env:
+            GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+          run: |
+            ${PWD}/workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}

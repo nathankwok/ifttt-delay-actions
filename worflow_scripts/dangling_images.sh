@@ -22,4 +22,3 @@ while read -r line; do
 done <<< $ids_to_delete
 
 echo -e "\nAll the dangling images have been removed successfully"
-exit 0
