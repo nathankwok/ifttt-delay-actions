@@ -109,14 +109,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # Deploy the image to an existing Northflank service or job
-      - name: Deploy to Northflank
-        uses: northflank/deploy-to-northflank@v1
-        with:
-          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
-          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
-          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
-          image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
+#      # Deploy the image to an existing Northflank service or job
+#      - name: Deploy to Northflank
+#        uses: northflank/deploy-to-northflank@v1
+#        with:
+#          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
+#          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
+#          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
+#          image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
 
 
 #      # Delete the `to_remove` image from GitHub Container Registry
@@ -143,5 +143,25 @@ jobs:
       - name: Delete untagged dangling images
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: ./workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
+        run: |
+          echo "Fetching dangling images from GHCR..."
+          ids_to_delete=$(gh api /user/packages/container/${{ env.REPO_NAME }}/versions | jq -r '.[] | select(.metadata.container.tags==[]) | .id')
+        
+          echo "Found dangling image ids: \n${ids_to_delete}"
+          
+          if [ "${ids_to_delete}" = "" ]
+            then
+            echo "There are no dangling images to remove for this package"
+            exit 0
+          fi
+          
+          echo -e "\nDeleting dangling images..."
+          while read -r line; do
+            id="$line"
+            ## Workaround for https://github.com/cli/cli/issues/4286 and https://github.com/cli/cli/issues/3937
+            echo -n | gh api --method DELETE /user/packages/container/${{ env.REPO_NAME }}/versions/${id} --input -
+            echo Dangling image with ID $id deleted successfully
+          done <<< $ids_to_delete
+          
+          echo -e "\nAll the dangling images have been removed successfully"
           
