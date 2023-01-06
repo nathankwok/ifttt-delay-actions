@@ -131,5 +131,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
         run: |
-          ./workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
-          ./workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
+          ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }}
+          ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
