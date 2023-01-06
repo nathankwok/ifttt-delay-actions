@@ -136,4 +136,4 @@ jobs:
       - name: Delete to_remove images from GitHub Container Registry
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
+        run: ./workflow_scripts/remove_images_using_tags.sh "${{ env.REPO_NAME }}" "${{ env.to_remove }}"
