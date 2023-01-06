@@ -34,3 +34,4 @@ while read -r line; do
 done <<< $ids_to_delete
 
 echo -e "\nAll the ${container} images with ${tag_echo_name} tag have been removed successfully"
+exit 0

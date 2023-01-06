@@ -126,10 +126,14 @@ jobs:
           version: '1.6'
           force: false
 
-      # Deletes images that are untagged (dangling) and have `to_remove` tag
-      - name: Delete unused images from GitHub Container Registry
+      # Deletes images that are untagged (dangling)
+      - name: Delete untagged images from GitHub Container Registry
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: |
-          ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }}
-          ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
+        run: ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }}
+
+      # Deletes images that have `to_remove` tag
+      - name: Delete to_remove images from GitHub Container Registry
+        env:
+          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+        run: ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
