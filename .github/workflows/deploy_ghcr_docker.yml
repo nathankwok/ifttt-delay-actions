@@ -140,6 +140,11 @@ jobs:
           version: '1.6'
           force: false
 
+      - name: check pwd
+        run: |
+          echo ${PWD}
+          echo $(ls -la)
+
       - name: Delete untagged dangling images
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}

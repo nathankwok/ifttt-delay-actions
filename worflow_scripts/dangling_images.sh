@@ -4,7 +4,8 @@ echo "Fetching dangling images from GHCR..."
 container=$1
 ids_to_delete=$(gh api /user/packages/container/${container}/versions | jq -r '.[] | select(.metadata.container.tags==[]) | .id')
 
-echo "Found dangling image ids: \n${ids_to_delete}"
+echo "Found dangling image ids:"
+echo "${ids_to_delete}"
 
 if [ "${ids_to_delete}" = "" ]
 then
