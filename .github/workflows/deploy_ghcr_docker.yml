@@ -135,7 +135,10 @@ jobs:
 #              -repo=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Setup jq
-          uses: dcarbone/install-jq-action@v1.0.1
+        uses: dcarbone/install-jq-action@v1.0.1
+        with:
+          version: '1.6'
+          force: false
 
       - name: Delete untagged dangling images
         env:
