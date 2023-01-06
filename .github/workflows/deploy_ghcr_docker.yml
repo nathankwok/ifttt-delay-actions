@@ -121,9 +121,10 @@ jobs:
 
       # Delete the `to_remove` image from GitHub Container Registry
       - name: Delete old image
+        # Delete all images with the tag "latest"
         run: |
-          # Delete all images with the tag "latest"
-          for image in $(ghcr.io/v2/${{ github.repository }}/manifests/to_remove | jq -r '.manifests[].digest'); do
-            ghcr.io/v2/${{ github.repository }}/manifests/$image -X DELETE
-          done
+#          for image in $(ghcr.io/v2/${{ github.repository }}/manifests/to_remove | jq -r '.manifests[].digest'); do
+#            ghcr.io/v2/${{ github.repository }}/manifests/$image -X DELETE
+#          done
+          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
           
