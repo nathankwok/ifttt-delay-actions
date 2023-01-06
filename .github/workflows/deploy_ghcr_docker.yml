@@ -143,6 +143,9 @@ jobs:
         run: |
           echo ${PWD}
           echo $(ls)
+          cd workflow_scripts
+          echo $(ls -la)
+          cd ..
 
 #      - name: Delete untagged dangling images
 #        env:
