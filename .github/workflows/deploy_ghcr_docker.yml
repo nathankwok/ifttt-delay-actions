@@ -12,7 +12,6 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   LATEST_TAG: latest
   BACKUP_TAG: backup
-  TO_REMOVE_TAG: to_remove
 
 
 jobs:
@@ -58,10 +57,6 @@ jobs:
 
 
 
-      # Tag previous `backup` GitHub Container Registry image with `to_remove` tag
-      - name: Tag previous latest GitHub Container Registry image with backup tag
-        run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
-
       # Tag previous `latest` GitHub Container Registry image with `backup` tag
       - name: Tag previous latest GitHub Container Registry image with backup tag
         run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
@@ -71,10 +66,6 @@ jobs:
         run: docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
-
-      # Push `to_remove` GitHub image
-      - name: Push to_remove GitHub Container Registry image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
 
       # Push `backup` GitHub image
       - name: Push backup GitHub Container Registry image
@@ -132,8 +123,3 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
         run: ./workflow_scripts/remove_images_using_tags.sh ${{ env.REPO_NAME }}
 
-      # Deletes images that have `to_remove` tag
-      - name: Delete to_remove images from GitHub Container Registry
-        env:
-          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: ./workflow_scripts/remove_images_using_tags.sh "${{ env.REPO_NAME }}" "${{ env.to_remove }}"
