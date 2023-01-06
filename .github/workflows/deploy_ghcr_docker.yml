@@ -170,7 +170,7 @@ jobs:
 #          echo -e "\nAll the dangling images have been removed successfully"
 
       - name: Delete untagged dangling images
-          env:
-            GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-          run: |
-            ${PWD}/workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+        run: |
+          ${PWD}/workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
