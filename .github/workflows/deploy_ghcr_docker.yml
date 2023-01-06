@@ -143,5 +143,5 @@ jobs:
       - name: Delete untagged dangling images
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-        run: sh ./dangling_images.sh ${{ env.REPO_NAME }}
+        run: ./dangling_images.sh ${{ env.REPO_NAME }}
           
