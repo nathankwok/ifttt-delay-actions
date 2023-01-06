@@ -119,8 +119,26 @@ jobs:
           image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
 
 
-      # Delete the `to_remove` image from GitHub Container Registry
-      - name: Delete old image
-        run: |
-          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TO_REMOVE_TAG }}
+#      # Delete the `to_remove` image from GitHub Container Registry
+#      - name: Delete old image
+#        run: |
+#          for image in $(ghcr.io/v2/${{ github.repository }}/manifests/to_remove | jq -r '.manifests[].digest'); do
+#            ghcr.io/v2/${{ github.repository }}/manifests/$image -X DELETE
+#          done
+
+#      - name: Clean up untagged images
+#          id: image_cleanup
+#          uses: 'docker://ghcr.io/dominik-ba/gh-cli-container/gh-cli:v2.13.0'
+#          with:
+#            args: >-
+#              -GITHUB_TOKEN=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
+#              -repo=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Setup jq
+          uses: dcarbone/install-jq-action@v1.0.1
+
+      - name: Delete untagged dangling images
+        env:
+          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
+        run: sh ./dangling_images.sh ${{ env.REPO_NAME }}
           
