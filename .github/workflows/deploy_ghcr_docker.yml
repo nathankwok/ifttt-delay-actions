@@ -121,9 +121,9 @@ jobs:
 
       # Delete the `to_remove` image from GitHub Container Registry
       - name: Delete old image
-        uses: bots-house/ghcr-delete-image-action@v1.0.0
-        with:
-          owner: ${{ secrets.DOCKERHUB_USERNAME }}
-          name: ${{ env.REPO_NAME }}
-          token: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-          tag: ${{ env.TO_REMOVE_TAG }}
+        run: |
+          # Delete all images with the tag "latest"
+          for image in $(ghcr.io/v2/${{ github.repository }}/manifests/to_remove | jq -r '.manifests[].digest'); do
+            ghcr.io/v2/${{ github.repository }}/manifests/$image -X DELETE
+          done
+          
