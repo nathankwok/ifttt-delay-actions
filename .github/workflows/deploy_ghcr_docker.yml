@@ -80,9 +80,9 @@ jobs:
       - name: Push backup GitHub Container Registry image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKUP_TAG }}
 
-#      # Push `backup` Docker Hub image
-#      - name: Push backup Docker Hub image
-#        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
+      # Push `backup` Docker Hub image
+      - name: Push backup Docker Hub image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.BACKUP_TAG }}
 
 
 
@@ -93,6 +93,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
           # set latest tag for default branch
           tags: |
             type=raw,value=${{ env.LATEST_TAG }}
@@ -108,72 +109,27 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-#      # Deploy the image to an existing Northflank service or job
-#      - name: Deploy to Northflank
-#        uses: northflank/deploy-to-northflank@v1
-#        with:
-#          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
-#          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
-#          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
-#          image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
+      # Deploy the image to an existing Northflank service or job
+      - name: Deploy to Northflank
+        uses: northflank/deploy-to-northflank@v1
+        with:
+          northflank-api-key: ${{ secrets.NORTHFLANK_API_KEY }}
+          project-id: ${{ secrets.NORTHFLANK_PROJECT_ID }}
+          service-id: ${{ secrets.NORTHFLANK_SERVICE_ID }}
+          image-path: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LATEST_TAG }}
 
 
-#      # Delete the `to_remove` image from GitHub Container Registry
-#      - name: Delete old image
-#        run: |
-#          for image in $(ghcr.io/v2/${{ github.repository }}/manifests/to_remove | jq -r '.manifests[].digest'); do
-#            ghcr.io/v2/${{ github.repository }}/manifests/$image -X DELETE
-#          done
-
-#      - name: Clean up untagged images
-#          id: image_cleanup
-#          uses: 'docker://ghcr.io/dominik-ba/gh-cli-container/gh-cli:v2.13.0'
-#          with:
-#            args: >-
-#              -GITHUB_TOKEN=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
-#              -repo=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      # Install jq so scripts can parse json
       - name: Setup jq
         uses: dcarbone/install-jq-action@v1.0.1
         with:
           version: '1.6'
           force: false
 
-      - name: check pwd
-        run: |
-          echo ${PWD}
-          echo $(ls)
-          cd workflow_scripts
-          echo $(ls -la)
-          cd ..
-
-#      - name: Delete untagged dangling images
-#        env:
-#          GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
-#        run: |
-#          echo "Fetching dangling images from GHCR..."
-#          ids_to_delete=$(gh api /user/packages/container/${{ env.REPO_NAME }}/versions | jq -r '.[] | select(.metadata.container.tags==[]) | .id')
-#
-#          echo "Found dangling image ids: \n${ids_to_delete}"
-#
-#          if [ "${ids_to_delete}" = "" ]
-#            then
-#            echo "There are no dangling images to remove for this package"
-#            exit 0
-#          fi
-#
-#          echo -e "\nDeleting dangling images..."
-#          while read -r line; do
-#            id="$line"
-#            ## Workaround for https://github.com/cli/cli/issues/4286 and https://github.com/cli/cli/issues/3937
-#            echo -n | gh api --method DELETE /user/packages/container/${{ env.REPO_NAME }}/versions/${id} --input -
-#            echo Dangling image with ID $id deleted successfully
-#          done <<< $ids_to_delete
-#
-#          echo -e "\nAll the dangling images have been removed successfully"
-
-      - name: Delete untagged dangling images
+      # Deletes images that are untagged (dangling) and have `to_remove` tag
+      - name: Delete unused images from GitHub Container Registry
         env:
           GH_TOKEN: ${{ secrets.GH_CLEAN_IMAGES_TOKEN }}
         run: |
-          ${PWD}/workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
+          ./workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }}
+          ./workflow_scripts/dangling_images.sh ${{ env.REPO_NAME }} ${{ env.to_remove }}
